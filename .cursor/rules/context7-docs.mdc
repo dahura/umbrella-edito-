@@ -1,0 +1,38 @@
+---
+alwaysApply: true
+---
+
+# Mandatory step: collect documentation via Context7 MCP
+
+Always, before starting any task, perform a brief "documentation collection" step using Context7 MCP to verify up-to-date APIs and signatures.
+
+## Language
+
+- All documentation, Context7 requests, and brief summaries must be in English only.
+
+## What to do every time
+
+- Identify relevant libraries and topics from the task context, open files, and project dependencies (see [package.json](mdc:package.json)).
+- For each key library:
+  - Call resolve-library-id with the exact library name.
+  - Call get-library-docs with a narrow, task-specific topic (e.g., "tools API", "generateObject", "routing", "streaming", "auth").
+- If there are multiple libraries/topics, fetch documentation in parallel.
+
+## Using the results
+
+- Use the obtained excerpts to validate correct signatures and idioms before writing code.
+- Keep requests focused and concise; choose specific sections/topics.
+- Do not duplicate identical requests within a single task.
+
+## Performance
+
+- When necessary, limit the documentation size (tokens) to a reasonable value.
+- Cache mentally to avoid re-requesting the same materials within a task.
+
+## Communication
+
+- Provide a concise summary of findings in user responses and immediately apply them. Do not overload messages with MCP internals.
+
+## Service unavailability
+
+- If Context7 MCP is temporarily unavailable, explicitly note this and proceed with the best-reasoned hypothesis, minimizing risk.
