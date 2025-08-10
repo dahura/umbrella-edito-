@@ -6,12 +6,16 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test:guard": "node ./scripts/test-guard.js"
   },
   "dependencies": {
+    "@openrouter/ai-sdk-provider": "^1.1.2",
+    "ai": "^5.0.9",
+    "next": "15.4.6",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "next": "15.4.6"
+    "zod": "^4.0.17"
   },
   "devDependencies": {
     "typescript": "^5",
