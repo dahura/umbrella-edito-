@@ -1,0 +1,399 @@
+"use client";
+
+import type * as React from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  CheckCircle,
+  AlertTriangle,
+  Loader,
+  Shield,
+  MessageSquareWarning,
+  Heart,
+  Mail,
+  X,
+  Move,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { EDITOR_TEXTS } from "@/lib/editor-texts";
+
+interface TextAnalysisResult {
+  categories: string[];
+  isAnalyzing: boolean;
+}
+
+interface TextAnalyzerWidgetProps {
+  text: string;
+  isOpen: boolean;
+  onClose: () => void;
+  onStatusChange: (status: "safe" | "warning" | "analyzing") => void;
+}
+
+// Вызов нашего backend-агента для анализа текста
+const analyzeText = async (text: string): Promise<string[]> => {
+  if (!text.trim()) return ["safe"];
+
+  const mapServerCategoryToUi = (category: string): string => {
+    switch (category) {
+      case "Hate speech":
+        return "hate speech";
+      case "Violence":
+        return "violence";
+      case "Sexual content":
+        return "sexual content";
+      case "Spam":
+        return "spam";
+      default:
+        return category;
+    }
+  };
+
+  const res = await fetch("/api/guard", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text }),
+  });
+
+  if (!res.ok) {
+    throw new Error(`Guard API error: ${res.status}`);
+  }
+
+  const data = (await res.json()) as {
+    status: "safe" | "unsafe";
+    categories: string[];
+  };
+
+  if (data.status === "safe") return ["safe"];
+  return data.categories.map(mapServerCategoryToUi);
+};
+
+const getCategoryConfig = (category: string) => {
+  const texts = EDITOR_TEXTS.analysis.categories;
+
+  switch (category) {
+    case "safe":
+      return {
+        icon: CheckCircle,
+        color: "text-green-600",
+        bgColor: "bg-green-50",
+        borderColor: "border-green-200",
+        label: texts.safe.label,
+        message: texts.safe.message,
+      };
+    case "hate speech":
+      return {
+        icon: MessageSquareWarning,
+        color: "text-red-600",
+        bgColor: "bg-red-50",
+        borderColor: "border-red-200",
+        label: texts.hateSeech.label,
+        message: texts.hateSeech.message,
+      };
+    case "violence":
+      return {
+        icon: AlertTriangle,
+        color: "text-red-600",
+        bgColor: "bg-red-50",
+        borderColor: "border-red-200",
+        label: texts.violence.label,
+        message: texts.violence.message,
+      };
+    case "sexual content":
+      return {
+        icon: Heart,
+        color: "text-red-600",
+        bgColor: "bg-red-50",
+        borderColor: "border-red-200",
+        label: texts.sexualContent.label,
+        message: texts.sexualContent.message,
+      };
+    case "spam":
+      return {
+        icon: Mail,
+        color: "text-red-600",
+        bgColor: "bg-red-50",
+        borderColor: "border-red-200",
+        label: texts.spam.label,
+        message: texts.spam.message,
+      };
+    default:
+      return {
+        icon: Shield,
+        color: "text-gray-600",
+        bgColor: "bg-gray-50",
+        borderColor: "border-gray-200",
+        label: category,
+        message: "Unknown content category.",
+      };
+  }
+};
+
+export const TextAnalyzerWidget: React.FC<TextAnalyzerWidgetProps> = ({
+  text,
+  isOpen,
+  onClose,
+  onStatusChange,
+}) => {
+  const [analysis, setAnalysis] = useState<TextAnalysisResult>({
+    categories: ["safe"],
+    isAnalyzing: false,
+  });
+  const [position, setPosition] = useState({ x: 100, y: 100 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const widgetRef = useRef<HTMLDivElement>(null);
+
+  // Debounce функция для анализа текста
+  const debouncedAnalyze = useCallback(
+    (() => {
+      let timeoutId: NodeJS.Timeout;
+      return (textToAnalyze: string) => {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(async () => {
+          if (!textToAnalyze.trim()) {
+            setAnalysis({ categories: ["safe"], isAnalyzing: false });
+            onStatusChange("safe");
+            return;
+          }
+
+          setAnalysis((prev) => ({ ...prev, isAnalyzing: true }));
+          onStatusChange("analyzing");
+
+          try {
+            const categories = await analyzeText(textToAnalyze);
+            setAnalysis({ categories, isAnalyzing: false });
+
+            // Определяем статус для родительского компонента
+            const hasBadContent = categories.some((cat) => cat !== "safe");
+            onStatusChange(hasBadContent ? "warning" : "safe");
+          } catch (error) {
+            console.error("Error analyzing text:", error);
+            setAnalysis({ categories: ["safe"], isAnalyzing: false });
+            onStatusChange("safe");
+          }
+        }, 1500);
+      };
+    })(),
+    [onStatusChange]
+  );
+
+  useEffect(() => {
+    debouncedAnalyze(text);
+  }, [text, debouncedAnalyze]);
+
+  // Обработка перетаскивания - теперь для всего виджета
+  const handleMouseDown = (e: React.MouseEvent) => {
+    // Не начинаем перетаскивание, если кликнули по кнопке закрытия или внутри скролл области
+    if (
+      (e.target as HTMLElement).closest('button[aria-label="close"]') ||
+      (e.target as HTMLElement).closest("[data-radix-scroll-area-viewport]")
+    ) {
+      return;
+    }
+
+    if (!widgetRef.current) return;
+
+    const rect = widgetRef.current.getBoundingClientRect();
+    setDragOffset({
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    });
+    setIsDragging(true);
+
+    // Предотвращаем выделение текста при перетаскивании
+    e.preventDefault();
+  };
+
+  const handleMouseMove = useCallback(
+    (e: MouseEvent) => {
+      if (!isDragging) return;
+
+      setPosition({
+        x: e.clientX - dragOffset.x,
+        y: e.clientY - dragOffset.y,
+      });
+    },
+    [isDragging, dragOffset]
+  );
+
+  const handleMouseUp = useCallback(() => {
+    setIsDragging(false);
+  }, []);
+
+  useEffect(() => {
+    if (isDragging) {
+      document.addEventListener("mousemove", handleMouseMove);
+      document.addEventListener("mouseup", handleMouseUp);
+      return () => {
+        document.removeEventListener("mousemove", handleMouseMove);
+        document.removeEventListener("mouseup", handleMouseUp);
+      };
+    }
+  }, [isDragging, handleMouseMove, handleMouseUp]);
+
+  if (!isOpen) return null;
+
+  // Получаем конфигурации для всех найденных категорий
+  const categoryConfigs = analysis.categories.map((category) =>
+    getCategoryConfig(category)
+  );
+
+  // Определяем общий статус виджета (если есть проблемы - показываем warning)
+  const hasProblems = analysis.categories.some((cat) => cat !== "safe");
+  const overallStatus = hasProblems ? "warning" : "safe";
+
+  return (
+    <div
+      ref={widgetRef}
+      className={cn(
+        "fixed z-50 w-96 shadow-lg select-none",
+        isDragging ? "cursor-grabbing" : "cursor-grab"
+      )}
+      style={{
+        left: position.x,
+        top: position.y,
+      }}
+      onMouseDown={handleMouseDown}
+    >
+      <Card className="border-2">
+        <CardHeader className="pb-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Shield className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm font-medium">
+                {EDITOR_TEXTS.contentGuard.widgetTitle}
+              </span>
+              {!analysis.isAnalyzing && analysis.categories.length > 1 && (
+                <span className="text-xs bg-muted px-2 py-1 rounded-full">
+                  {analysis.categories.length} issues
+                </span>
+              )}
+            </div>
+            <div className="flex items-center gap-1">
+              <Move className="h-3 w-3 text-muted-foreground" />
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-6 w-6 p-0 cursor-pointer"
+                onClick={onClose}
+                aria-label="close"
+              >
+                <X className="h-3 w-3" />
+              </Button>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="pt-0">
+          {analysis.isAnalyzing ? (
+            <div className="flex items-center gap-2 p-3 rounded-lg bg-blue-50 border border-blue-200">
+              <Loader className="h-4 w-4 text-blue-600 animate-spin" />
+              <span className="text-sm text-blue-700">
+                {EDITOR_TEXTS.contentGuard.analyzing}
+              </span>
+            </div>
+          ) : (
+            <ScrollArea className="h-[300px] w-full">
+              <div className="space-y-3 pr-4">
+                {categoryConfigs.map((config, index) => {
+                  const Icon = config.icon;
+                  return (
+                    <div key={index} className="space-y-2">
+                      <div
+                        className={cn(
+                          "flex items-center gap-2 p-3 rounded-lg border",
+                          config.bgColor,
+                          config.borderColor
+                        )}
+                      >
+                        <Icon
+                          className={cn("h-4 w-4 flex-shrink-0", config.color)}
+                        />
+                        <span
+                          className={cn("text-sm font-medium", config.color)}
+                        >
+                          {config.label}
+                        </span>
+                      </div>
+
+                      {/* Описательное сообщение */}
+                      <div className="p-3 rounded-lg bg-muted/50 border ml-6">
+                        <p className="text-xs text-muted-foreground leading-relaxed">
+                          {config.message}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </ScrollArea>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+// Компонент кнопки для панели инструментов
+interface ContentGuardButtonProps {
+  status: "safe" | "warning" | "analyzing";
+  onClick: () => void;
+}
+
+export const ContentGuardButton: React.FC<ContentGuardButtonProps> = ({
+  status,
+  onClick,
+}) => {
+  const getStatusConfig = () => {
+    const texts = EDITOR_TEXTS.contentGuard.buttonTitle;
+
+    switch (status) {
+      case "safe":
+        return {
+          icon: CheckCircle,
+          color: "text-green-600",
+          bgColor: "hover:bg-green-50",
+          title: texts.safe,
+        };
+      case "warning":
+        return {
+          icon: AlertTriangle,
+          color: "text-red-600",
+          bgColor: "hover:bg-red-50",
+          title: texts.warning,
+        };
+      case "analyzing":
+        return {
+          icon: Loader,
+          color: "text-blue-600",
+          bgColor: "hover:bg-blue-50",
+          title: texts.analyzing,
+        };
+    }
+  };
+
+  const config = getStatusConfig();
+  const Icon = config.icon;
+
+  return (
+    <Button
+      variant="ghost"
+      size="sm"
+      onClick={onClick}
+      className={cn("gap-2", config.bgColor)}
+      title={config.title}
+    >
+      <Icon
+        className={cn(
+          "h-4 w-4",
+          config.color,
+          status === "analyzing" && "animate-spin"
+        )}
+      />
+      <span className="text-xs font-medium">
+        {EDITOR_TEXTS.toolbar.contentGuard}
+      </span>
+    </Button>
+  );
+};
