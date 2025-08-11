@@ -583,26 +583,6 @@ export function MarkdownEditor({
     setIsAnalyzerOpen(false);
   }, []);
 
-  // Function to load example text into editor
-  const handleLoadExample = useCallback((exampleText: string) => {
-    if (!editorRef.current) return;
-
-    editorRef.current.update(() => {
-      try {
-        const root = $getRoot();
-        root.clear();
-        $convertFromMarkdownString(exampleText, ALL_TRANSFORMERS);
-      } catch (error) {
-        console.error("Error loading example:", error);
-        // Fallback to plain text if markdown conversion fails
-        const root = $getRoot();
-        root.clear();
-        const textNode = $createTextNode(exampleText);
-        root.append(textNode);
-      }
-    });
-  }, []);
-
   // Function to get current markdown (can be called externally)
   const getMarkdown = useCallback((): string => {
     if (!editorRef.current) return "";
@@ -763,7 +743,6 @@ export function MarkdownEditor({
           isOpen={isAnalyzerOpen}
           onClose={handleCloseAnalyzer}
           onStatusChange={handleContentGuardStatusChange}
-          onLoadExample={handleLoadExample}
         />
       )}
     </>

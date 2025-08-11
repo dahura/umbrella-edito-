@@ -15,11 +15,9 @@ import {
   Mail,
   X,
   Move,
-  FileText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { EDITOR_TEXTS } from "@/lib/editor-texts";
-import { TEST_EXAMPLES, type TestExampleKey } from "@/lib/test-examples";
 
 interface TextAnalysisResult {
   categories: string[];
@@ -31,7 +29,6 @@ interface TextAnalyzerWidgetProps {
   isOpen: boolean;
   onClose: () => void;
   onStatusChange: (status: "safe" | "warning" | "analyzing") => void;
-  onLoadExample?: (exampleText: string) => void;
 }
 
 // Call our backend agent to analyze text
@@ -204,7 +201,6 @@ export const TextAnalyzerWidget: React.FC<TextAnalyzerWidgetProps> = ({
   isOpen,
   onClose,
   onStatusChange,
-  onLoadExample,
 }) => {
   const [analysis, setAnalysis] = useState<TextAnalysisResult>({
     categories: ["safe"],
@@ -366,38 +362,6 @@ export const TextAnalyzerWidget: React.FC<TextAnalyzerWidgetProps> = ({
           ) : (
             <ScrollArea className="h-[300px] w-full">
               <div className="space-y-3 pr-4">
-                {/* Examples Section */}
-                {onLoadExample && (
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2 p-2">
-                      <FileText className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm font-medium text-muted-foreground">
-                        {EDITOR_TEXTS.analysis.examples.title}
-                      </span>
-                    </div>
-                    <p className="text-xs text-muted-foreground px-2">
-                      {EDITOR_TEXTS.analysis.examples.description}
-                    </p>
-                    <div className="grid grid-cols-2 gap-2 p-2">
-                      {Object.entries(TEST_EXAMPLES).map(([key, exampleText]) => {
-                        const exampleKey = key as TestExampleKey;
-                        const exampleLabel = EDITOR_TEXTS.analysis.examples[exampleKey];
-                        return (
-                          <Button
-                            key={key}
-                            variant="outline"
-                            size="sm"
-                            className="text-xs h-auto p-2 text-left"
-                            onClick={() => onLoadExample(exampleText)}
-                          >
-                            {exampleLabel}
-                          </Button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-
                 {/* Analysis Results */}
                 {categoryConfigs.map((config, index) => {
                   const Icon = config.icon;

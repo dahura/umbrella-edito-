@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { MarkdownEditor } from "@/components/markdown-editor";
+import { TestExamplesPanel } from "@/components/test-examples-panel";
 import {
   Card,
   CardHeader,
@@ -16,6 +17,14 @@ export default function Home() {
   const [content, setContent] = useState("");
   const [markdownContent, setMarkdownContent] = useState("");
   const [serverResponse, setServerResponse] = useState("");
+
+  // Function to load example text into editor
+  const handleLoadExample = useCallback((exampleText: string) => {
+    // Access the editor through the global window object
+    if (typeof window !== "undefined" && window.markdownEditor) {
+      window.markdownEditor.loadMarkdown(exampleText);
+    }
+  }, []);
 
   // Simulate sending markdown to server
   const sendToServer = async () => {
@@ -41,14 +50,24 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="w-full max-w-6xl">
-        <MarkdownEditor
-          initialContent=""
-          placeholder="Start writing..."
-          onChange={setContent}
-          onMarkdownChange={setMarkdownContent}
-        />
+    <div className="min-h-screen p-4">
+      <div className="w-full max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Test Examples Panel */}
+          <div className="lg:col-span-1">
+            <TestExamplesPanel onLoadExample={handleLoadExample} />
+          </div>
+          
+          {/* Editor */}
+          <div className="lg:col-span-3">
+            <MarkdownEditor
+              initialContent=""
+              placeholder="Start writing..."
+              onChange={setContent}
+              onMarkdownChange={setMarkdownContent}
+            />
+          </div>
+        </div>
       </div>
     </div>
   );
