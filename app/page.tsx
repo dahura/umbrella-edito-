@@ -50,23 +50,19 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen p-4">
-      <div className="w-full max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Test Examples Panel */}
-          <div className="lg:col-span-1">
-            <TestExamplesPanel onLoadExample={handleLoadExample} />
-          </div>
-          
-          {/* Editor */}
-          <div className="lg:col-span-3">
-            <MarkdownEditor
-              initialContent=""
-              placeholder="Start writing..."
-              onChange={setContent}
-              onMarkdownChange={setMarkdownContent}
-            />
-          </div>
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="w-full max-w-6xl">
+        {/* Editor */}
+        <MarkdownEditor
+          initialContent=""
+          placeholder="Start writing..."
+          onChange={setContent}
+          onMarkdownChange={setMarkdownContent}
+        />
+
+        {/* Test Examples Panel */}
+        <div className="mt-6">
+          <TestExamplesPanel onLoadExample={handleLoadExample} />
         </div>
       </div>
     </div>
