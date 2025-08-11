@@ -31,7 +31,7 @@ interface TextAnalyzerWidgetProps {
   onStatusChange: (status: "safe" | "warning" | "analyzing") => void;
 }
 
-// Вызов нашего backend-агента для анализа текста
+// Call our backend agent to analyze text
 const analyzeText = async (text: string): Promise<string[]> => {
   if (!text.trim()) return ["safe"];
 
@@ -145,7 +145,7 @@ export const TextAnalyzerWidget: React.FC<TextAnalyzerWidgetProps> = ({
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const widgetRef = useRef<HTMLDivElement>(null);
 
-  // Debounce функция для анализа текста
+  // Debounce function for text analysis
   const debouncedAnalyze = useCallback(
     (() => {
       let timeoutId: NodeJS.Timeout;
@@ -165,7 +165,7 @@ export const TextAnalyzerWidget: React.FC<TextAnalyzerWidgetProps> = ({
             const categories = await analyzeText(textToAnalyze);
             setAnalysis({ categories, isAnalyzing: false });
 
-            // Определяем статус для родительского компонента
+            // Determine status for the parent component
             const hasBadContent = categories.some((cat) => cat !== "safe");
             onStatusChange(hasBadContent ? "warning" : "safe");
           } catch (error) {
@@ -183,9 +183,9 @@ export const TextAnalyzerWidget: React.FC<TextAnalyzerWidgetProps> = ({
     debouncedAnalyze(text);
   }, [text, debouncedAnalyze]);
 
-  // Обработка перетаскивания - теперь для всего виджета
+  // Drag handling – now for the whole widget
   const handleMouseDown = (e: React.MouseEvent) => {
-    // Не начинаем перетаскивание, если кликнули по кнопке закрытия или внутри скролл области
+    // Do not start dragging if clicked on the close button or inside the scroll area
     if (
       (e.target as HTMLElement).closest('button[aria-label="close"]') ||
       (e.target as HTMLElement).closest("[data-radix-scroll-area-viewport]")
@@ -202,7 +202,7 @@ export const TextAnalyzerWidget: React.FC<TextAnalyzerWidgetProps> = ({
     });
     setIsDragging(true);
 
-    // Предотвращаем выделение текста при перетаскивании
+    // Prevent text selection while dragging
     e.preventDefault();
   };
 
@@ -235,12 +235,12 @@ export const TextAnalyzerWidget: React.FC<TextAnalyzerWidgetProps> = ({
 
   if (!isOpen) return null;
 
-  // Получаем конфигурации для всех найденных категорий
+  // Get configs for all detected categories
   const categoryConfigs = analysis.categories.map((category) =>
     getCategoryConfig(category)
   );
 
-  // Определяем общий статус виджета (если есть проблемы - показываем warning)
+  // Determine overall widget status (show warning if there are issues)
   const hasProblems = analysis.categories.some((cat) => cat !== "safe");
   const overallStatus = hasProblems ? "warning" : "safe";
 
@@ -317,7 +317,7 @@ export const TextAnalyzerWidget: React.FC<TextAnalyzerWidgetProps> = ({
                         </span>
                       </div>
 
-                      {/* Описательное сообщение */}
+                      {/* Descriptive message */}
                       <div className="p-3 rounded-lg bg-muted/50 border ml-6">
                         <p className="text-xs text-muted-foreground leading-relaxed">
                           {config.message}
@@ -335,7 +335,7 @@ export const TextAnalyzerWidget: React.FC<TextAnalyzerWidgetProps> = ({
   );
 };
 
-// Компонент кнопки для панели инструментов
+// Button component for the toolbar
 interface ContentGuardButtonProps {
   status: "safe" | "warning" | "analyzing";
   onClick: () => void;
