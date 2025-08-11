@@ -13,6 +13,7 @@ import {
   Mail,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 interface TextAnalysisResult {
   categories: string[];
@@ -166,6 +167,9 @@ export const TextAnalyzer: React.FC<TextAnalyzerProps> = ({
             setAnalysis({ categories, isAnalyzing: false });
           } catch (error) {
             console.error("Error analyzing text:", error);
+            toast.error(
+              "Content Guard connection error. Your API key may have expired, or the free model may be unavailable/rate-limited. Try switching to another model."
+            );
             setAnalysis({ categories: ["safe"], isAnalyzing: false });
           }
         }, 1500); // Analysis starts 1.5 seconds after typing stops

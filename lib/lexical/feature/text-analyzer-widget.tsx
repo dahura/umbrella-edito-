@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { EDITOR_TEXTS } from "@/lib/editor-texts";
+import { toast } from "sonner";
 
 interface TextAnalysisResult {
   categories: string[];
@@ -236,6 +237,9 @@ export const TextAnalyzerWidget: React.FC<TextAnalyzerWidgetProps> = ({
             onStatusChange(hasBadContent ? "warning" : "safe");
           } catch (error) {
             console.error("Error analyzing text:", error);
+            toast.error(
+              "Content Guard connection error. Your API key may have expired, or the free model may be unavailable/rate-limited. Try switching to another model."
+            );
             setAnalysis({ categories: ["safe"], isAnalyzing: false });
             onStatusChange("safe");
           }
