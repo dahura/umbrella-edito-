@@ -2,6 +2,7 @@ import { TRANSFORMERS, type Transformer } from "@lexical/markdown";
 import { $isMathNode, $createMathNode } from "../nodes/math-node";
 
 export const MATH_TRANSFORMER: Transformer = {
+  dependencies: [],
   export: (node) => {
     if ($isMathNode(node)) {
       const equation = node.getEquation(); // Get clean LaTeX
