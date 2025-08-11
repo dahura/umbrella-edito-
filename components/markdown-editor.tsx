@@ -23,15 +23,28 @@ import { cn } from "@/lib/utils";
 import { EDITOR_TEXTS } from "@/lib/editor-texts";
 
 // ---- PrismJS (needed for @lexical/code) ------------------------------------
-// PrismJS is only used to satisfy @lexical/code peer requirement. Types are optional.
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const Prism = require("prismjs");
+// PrismJS is only used to satisfy @lexical/code peer requirement.
+import Prism from "prismjs";
 import "prismjs/components/prism-markup";
 import "prismjs/components/prism-javascript";
 import "prismjs/components/prism-typescript";
 import "prismjs/components/prism-css";
 import "prismjs/components/prism-json";
-(globalThis as any).Prism = Prism;
+declare global {
+  interface Window {
+    Prism: typeof Prism;
+    markdownEditor?: {
+      getMarkdown: () => string;
+      loadMarkdown: (markdown: string) => void;
+      getCurrentContent: () => string;
+      getStats: () => { characterCount: number };
+    };
+  }
+}
+
+if (typeof window !== "undefined") {
+  window.Prism = Prism;
+}
 // ---------------------------------------------------------------------------
 
 // Lexical imports
@@ -46,6 +59,7 @@ import {
   type LexicalEditor,
   $isTextNode,
   type LexicalNode,
+  ElementNode,
 } from "lexical";
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
@@ -414,10 +428,10 @@ function CharacterCountPlugin({
             characterCount += node.getTextContent().length;
           } else if ($isMathNode(node)) {
             characterCount += 1;
-          } else if ((node as any).getChildren) {
-            const children = (node as any).getChildren();
+          } else if (node instanceof ElementNode) {
+            const children = node.getChildren();
             for (const child of children) {
-              countCharacters(child as any);
+              countCharacters(child);
             }
           }
         };
@@ -620,7 +634,7 @@ export function MarkdownEditor({
   // Expose functions for external use
   useEffect(() => {
     if (typeof window !== "undefined") {
-      (window as any).markdownEditor = {
+      window.markdownEditor = {
         getMarkdown,
         loadMarkdown,
         getCurrentContent: () => content,
