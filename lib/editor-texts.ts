@@ -33,7 +33,7 @@ export const EDITOR_TEXTS = {
         label: "Safe",
         message: "Content does not contain potentially harmful information and is safe for all users.",
       },
-      hateSeech: {
+      hateSpeech: {
         label: "Hate Speech",
         message: "Content contains offensive statements that may cause emotional harm and promote discrimination.",
       },
@@ -50,6 +50,45 @@ export const EDITOR_TEXTS = {
         label: "Spam",
         message: "Content contains intrusive advertising or fraudulent offers that may mislead users.",
       },
+      harassmentAndBullying: {
+        label: "Harassment and Bullying",
+        message: "Content contains personal attacks, threats, or demeaning language targeting individuals.",
+      },
+      selfHarmOrSuicideEncouragement: {
+        label: "Self-harm or Suicide Encouragement",
+        message: "Content promotes or glorifies self-harm, suicide, or dangerous behaviors.",
+      },
+      illegalActivities: {
+        label: "Illegal Activities",
+        message: "Content describes or promotes illegal activities, crimes, or unlawful behavior.",
+      },
+      misinformationFakeNews: {
+        label: "Misinformation / Fake News",
+        message: "Content contains false information, conspiracy theories, or misleading claims.",
+      },
+      terrorismRelatedContent: {
+        label: "Terrorism-related Content",
+        message: "Content promotes, glorifies, or provides instructions for terrorist activities.",
+      },
+      hateSymbolsAndExtremistContent: {
+        label: "Hate Symbols and Extremist Content",
+        message: "Content contains hate symbols, extremist ideologies, or radical content.",
+      },
+    },
+    examples: {
+      title: "Test Examples",
+      description: "Click to load example text for testing:",
+      safe: "Safe content example",
+      hateSpeech: "Hate speech example", 
+      violence: "Violence example",
+      sexualContent: "Adult content example",
+      spam: "Spam example",
+      harassmentAndBullying: "Harassment example",
+      selfHarmOrSuicideEncouragement: "Self-harm example",
+      illegalActivities: "Illegal activities example",
+      misinformationFakeNews: "Misinformation example",
+      terrorismRelatedContent: "Terrorism example",
+      hateSymbolsAndExtremistContent: "Hate symbols example",
     },
   },
 

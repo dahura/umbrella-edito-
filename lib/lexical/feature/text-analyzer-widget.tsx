@@ -15,9 +15,11 @@ import {
   Mail,
   X,
   Move,
+  FileText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { EDITOR_TEXTS } from "@/lib/editor-texts";
+import { TEST_EXAMPLES, type TestExampleKey } from "@/lib/test-examples";
 
 interface TextAnalysisResult {
   categories: string[];
@@ -29,6 +31,7 @@ interface TextAnalyzerWidgetProps {
   isOpen: boolean;
   onClose: () => void;
   onStatusChange: (status: "safe" | "warning" | "analyzing") => void;
+  onLoadExample?: (exampleText: string) => void;
 }
 
 // Call our backend agent to analyze text
@@ -38,15 +41,27 @@ const analyzeText = async (text: string): Promise<string[]> => {
   const mapServerCategoryToUi = (category: string): string => {
     switch (category) {
       case "Hate speech":
-        return "hate speech";
+        return "hateSpeech";
       case "Violence":
         return "violence";
       case "Sexual content":
-        return "sexual content";
+        return "sexualContent";
       case "Spam":
         return "spam";
+      case "Harassment and bullying":
+        return "harassmentAndBullying";
+      case "Self-harm or suicide encouragement":
+        return "selfHarmOrSuicideEncouragement";
+      case "Illegal activities":
+        return "illegalActivities";
+      case "Misinformation / fake news":
+        return "misinformationFakeNews";
+      case "Terrorism-related content":
+        return "terrorismRelatedContent";
+      case "Hate symbols and extremist content":
+        return "hateSymbolsAndExtremistContent";
       default:
-        return category;
+        return category.toLowerCase().replace(/\s+/g, "");
     }
   };
 
@@ -82,14 +97,14 @@ const getCategoryConfig = (category: string) => {
         label: texts.safe.label,
         message: texts.safe.message,
       };
-    case "hate speech":
+    case "hateSpeech":
       return {
         icon: MessageSquareWarning,
         color: "text-red-600",
         bgColor: "bg-red-50",
         borderColor: "border-red-200",
-        label: texts.hateSeech.label,
-        message: texts.hateSeech.message,
+        label: texts.hateSpeech.label,
+        message: texts.hateSpeech.message,
       };
     case "violence":
       return {
@@ -100,7 +115,7 @@ const getCategoryConfig = (category: string) => {
         label: texts.violence.label,
         message: texts.violence.message,
       };
-    case "sexual content":
+    case "sexualContent":
       return {
         icon: Heart,
         color: "text-red-600",
@@ -117,6 +132,60 @@ const getCategoryConfig = (category: string) => {
         borderColor: "border-red-200",
         label: texts.spam.label,
         message: texts.spam.message,
+      };
+    case "harassmentAndBullying":
+      return {
+        icon: AlertTriangle,
+        color: "text-red-600",
+        bgColor: "bg-red-50",
+        borderColor: "border-red-200",
+        label: texts.harassmentAndBullying.label,
+        message: texts.harassmentAndBullying.message,
+      };
+    case "selfHarmOrSuicideEncouragement":
+      return {
+        icon: AlertTriangle,
+        color: "text-red-600",
+        bgColor: "bg-red-50",
+        borderColor: "border-red-200",
+        label: texts.selfHarmOrSuicideEncouragement.label,
+        message: texts.selfHarmOrSuicideEncouragement.message,
+      };
+    case "illegalActivities":
+      return {
+        icon: AlertTriangle,
+        color: "text-red-600",
+        bgColor: "bg-red-50",
+        borderColor: "border-red-200",
+        label: texts.illegalActivities.label,
+        message: texts.illegalActivities.message,
+      };
+    case "misinformationFakeNews":
+      return {
+        icon: AlertTriangle,
+        color: "text-red-600",
+        bgColor: "bg-red-50",
+        borderColor: "border-red-200",
+        label: texts.misinformationFakeNews.label,
+        message: texts.misinformationFakeNews.message,
+      };
+    case "terrorismRelatedContent":
+      return {
+        icon: AlertTriangle,
+        color: "text-red-600",
+        bgColor: "bg-red-50",
+        borderColor: "border-red-200",
+        label: texts.terrorismRelatedContent.label,
+        message: texts.terrorismRelatedContent.message,
+      };
+    case "hateSymbolsAndExtremistContent":
+      return {
+        icon: AlertTriangle,
+        color: "text-red-600",
+        bgColor: "bg-red-50",
+        borderColor: "border-red-200",
+        label: texts.hateSymbolsAndExtremistContent.label,
+        message: texts.hateSymbolsAndExtremistContent.message,
       };
     default:
       return {
@@ -135,6 +204,7 @@ export const TextAnalyzerWidget: React.FC<TextAnalyzerWidgetProps> = ({
   isOpen,
   onClose,
   onStatusChange,
+  onLoadExample,
 }) => {
   const [analysis, setAnalysis] = useState<TextAnalysisResult>({
     categories: ["safe"],
@@ -296,6 +366,39 @@ export const TextAnalyzerWidget: React.FC<TextAnalyzerWidgetProps> = ({
           ) : (
             <ScrollArea className="h-[300px] w-full">
               <div className="space-y-3 pr-4">
+                {/* Examples Section */}
+                {onLoadExample && (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 p-2">
+                      <FileText className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm font-medium text-muted-foreground">
+                        {EDITOR_TEXTS.analysis.examples.title}
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted-foreground px-2">
+                      {EDITOR_TEXTS.analysis.examples.description}
+                    </p>
+                    <div className="grid grid-cols-2 gap-2 p-2">
+                      {Object.entries(TEST_EXAMPLES).map(([key, exampleText]) => {
+                        const exampleKey = key as TestExampleKey;
+                        const exampleLabel = EDITOR_TEXTS.analysis.examples[exampleKey];
+                        return (
+                          <Button
+                            key={key}
+                            variant="outline"
+                            size="sm"
+                            className="text-xs h-auto p-2 text-left"
+                            onClick={() => onLoadExample(exampleText)}
+                          >
+                            {exampleLabel}
+                          </Button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Analysis Results */}
                 {categoryConfigs.map((config, index) => {
                   const Icon = config.icon;
                   return (
