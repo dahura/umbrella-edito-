@@ -35,7 +35,7 @@ export const guardAgent = async (
   inputText: string
 ): Promise<z.infer<typeof guardResultSchema>> => {
   const { object } = await generateObject({
-    model: openrouter("openai/gpt-oss-20b:free"),
+    model: openrouter("qwen/qwen3-coder:free"),
     schema: guardResultSchema,
     system:
       "You are a strict content safety classifier. Classify text as 'safe' or 'unsafe' and list applicable categories. Output must strictly follow the provided JSON schema.",
