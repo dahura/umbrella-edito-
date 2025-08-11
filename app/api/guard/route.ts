@@ -14,6 +14,7 @@ export async function POST(req: Request) {
     const result = await guardAgent(text);
     return NextResponse.json(result);
   } catch (err) {
+    console.log(err);
     return NextResponse.json(
       { error: "Internal error", details: (err as Error).message },
       { status: 500 }

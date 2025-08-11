@@ -1,6 +1,7 @@
 import { generateObject, tool } from "ai";
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import { z } from "zod";
+import { openai } from "@ai-sdk/openai";
 
 const openrouter = createOpenRouter({
   apiKey: process.env.OPENROUTER_API_KEY,
@@ -35,7 +36,7 @@ export const guardAgent = async (
   inputText: string
 ): Promise<z.infer<typeof guardResultSchema>> => {
   const { object } = await generateObject({
-    model: openrouter("qwen/qwen3-coder:free"),
+    model: openai("gpt-5-nano"),
     schema: guardResultSchema,
     system:
       "You are a strict content safety classifier. Classify text as 'safe' or 'unsafe' and list applicable categories. Output must strictly follow the provided JSON schema.",

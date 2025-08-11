@@ -10,6 +10,7 @@
     "test:guard": "node ./scripts/test-guard.js"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^2.0.9",
     "@lexical/code": "^0.34.0",
     "@lexical/markdown": "^0.34.0",
     "@lexical/react": "^0.34.0",

@@ -70,6 +70,7 @@ const analyzeText = async (text: string): Promise<string[]> => {
   });
 
   if (!res.ok) {
+    console.log(res);
     throw new Error(`Guard API error: ${res.status}`);
   }
 
