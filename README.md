@@ -39,7 +39,7 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 ---
 
-## Step 1 — Content Safety Agent (finished test task)
+## Step 1 — Content Safety Agent (finished Sabrina's test task)
 
 This step introduces a content safety classifier agent built with AI SDK v5 and OpenRouter. The agent takes input text and returns either:
 
@@ -63,7 +63,7 @@ Supported categories (English):
 
 - Agent: `app/agent/text-guard-agent.ts`
   - Uses `generateObject` with a strict Zod schema to enforce structured output.
-  - Tool `guardTool` exposes `inputSchema` and `outputSchema` and calls `guardAgent`.
+  - There is no separate tool layer; only the `guardAgent` function is used directly by the API.
 - API route: `app/api/guard/route.ts`
   - `POST /api/guard` accepts `{ text: string }` and returns `{ status, categories }`.
 - Test samples: `test-data/guard/*.txt`
@@ -118,5 +118,47 @@ Example:
 ```bash
 BASE_URL=http://localhost:3001 npm run test:guard
 ```
+
+---
+
+## Step 2 — Editor with Content Guard (merged with shadcn-editor extension)
+
+This step consolidates the product demo and the extension work into a single deliverable: a modern editor with built‑in Content Guard, plus a path to reuse the same feature set in my shadcn-based editor.
+
+**Product Features:**
+
+- Custom Lexical-based editor with:
+  - Rich-text formatting (bold, italic, underline, quote)
+  - Math support (inline `$...$` and block `$$...$$`, KaTeX rendering)
+  - Markdown import/export
+  - Content Guard: real-time safety status indicator and a floating analysis widget that highlights issues
+
+**How it works:**
+
+- As users type, the editor automatically analyzes the content for safety using the `/api/guard` agent endpoint.
+- Detected issues (e.g., hate speech, violence, sexual content, spam) are shown in a draggable widget with clear descriptions and color-coded warnings.
+- The toolbar displays the current safety status and allows users to toggle the analyzer widget.
+
+**Motivation and extension plan:**
+
+- I chose to go beyond the initial scope and integrate the same Guard experience into my shadcn-based editor to showcase a realistic product direction.
+- Repository: https://github.com/dahura/shadcn-editor
+- Integration goal: add the same Guard API (`POST /api/guard`) and UI signals (toolbar button + floating widget) so users get instant safety feedback in the shadcn editor.
+- Status mapping: Hate speech, Violence, Sexual content, Spam (extendable)
+
+Implementation outline (both here and for shadcn-editor):
+
+1. Guard client util that calls `POST /api/guard` with `{ text }` and returns `{ status, categories }`.
+2. Toolbar Content Guard button that reflects status and toggles the analyzer.
+3. Draggable analyzer widget that lists detected categories with short descriptions and colors.
+4. Debounced analysis on content change.
+
+Key implementation files (this repo):
+
+- `lib/lexical/feature/text-analyzer.tsx`
+- `lib/lexical/feature/text-analyzer-widget.tsx`
+- `components/markdown-editor.tsx`
+
+> Note: I completed the first task via the agent within ~2 hours and then implemented this merged step to present a cohesive product story.
 
 ---
