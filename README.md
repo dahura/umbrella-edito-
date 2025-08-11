@@ -62,8 +62,9 @@ Supported categories (English):
 ### Implementation
 
 - Agent: `app/agent/text-guard-agent.ts`
+
   - Uses `generateObject` with a strict Zod schema to enforce structured output.
-  - There is no separate tool layer; only the `guardAgent` function is used directly by the API.
+
 - API route: `app/api/guard/route.ts`
   - `POST /api/guard` accepts `{ text: string }` and returns `{ status, categories }`.
 - Test samples: `test-data/guard/*.txt`
