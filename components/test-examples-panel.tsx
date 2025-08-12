@@ -18,7 +18,7 @@ export const TestExamplesPanel: React.FC<TestExamplesPanelProps> = ({
 }) => {
   return (
     <Card className={className}>
-      <CardHeader className="pb-3">
+      <CardHeader className="pb-3 p-3 sm:p-6">
         <div className="flex items-center gap-2">
           <FileText className="h-4 w-4 text-muted-foreground" />
           <span className="text-sm font-medium">
@@ -29,8 +29,8 @@ export const TestExamplesPanel: React.FC<TestExamplesPanelProps> = ({
           {EDITOR_TEXTS.analysis.examples.description}
         </p>
       </CardHeader>
-      <CardContent className="pt-0">
-        <div className="grid grid-cols-2 gap-2">
+      <CardContent className="pt-0 p-3 sm:p-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
           {Object.entries(TEST_EXAMPLES).map(([key, exampleText]) => {
             const exampleKey = key as TestExampleKey;
             const exampleLabel = EDITOR_TEXTS.analysis.examples[exampleKey];
@@ -39,7 +39,7 @@ export const TestExamplesPanel: React.FC<TestExamplesPanelProps> = ({
                 key={key}
                 variant="outline"
                 size="sm"
-                className="text-xs h-auto p-2 text-left"
+                className="text-xs h-auto p-3 text-left justify-start whitespace-normal"
                 onClick={() => onLoadExample(exampleText)}
               >
                 {exampleLabel}

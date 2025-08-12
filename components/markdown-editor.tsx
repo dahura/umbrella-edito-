@@ -260,145 +260,176 @@ function ToolbarPlugin({
   const texts = EDITOR_TEXTS.toolbar;
 
   return (
-    <div className="flex items-center justify-between p-4 border-b bg-muted/30">
-      <div className="flex items-center gap-1">
-        {/* Undo/Redo */}
-        {EDITOR_CONFIG.features.undo && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleUndo}
-            disabled={!canUndo}
-            title={texts.undo}
-          >
-            <Undo className="h-4 w-4" />
-          </Button>
-        )}
-        {EDITOR_CONFIG.features.redo && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleRedo}
-            disabled={!canRedo}
-            title={texts.redo}
-          >
-            <Redo className="h-4 w-4" />
-          </Button>
-        )}
+    <div className="border-b bg-muted/30">
+      {/* Mobile: Stack toolbar items vertically */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-2 sm:p-4 gap-2 sm:gap-0">
+        {/* Primary toolbar - always visible */}
+        <div className="flex items-center gap-1 flex-wrap">
+          {/* Undo/Redo - Priority 1 */}
+          {EDITOR_CONFIG.features.undo && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleUndo}
+              disabled={!canUndo}
+              title={texts.undo}
+              className="h-8 w-8 p-0 sm:h-auto sm:w-auto sm:p-2"
+            >
+              <Undo className="h-4 w-4" />
+            </Button>
+          )}
+          {EDITOR_CONFIG.features.redo && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleRedo}
+              disabled={!canRedo}
+              title={texts.redo}
+              className="h-8 w-8 p-0 sm:h-auto sm:w-auto sm:p-2"
+            >
+              <Redo className="h-4 w-4" />
+            </Button>
+          )}
 
-        <Separator orientation="vertical" className="h-6 mx-1" />
+          <Separator orientation="vertical" className="h-6 mx-1 hidden sm:block" />
 
-        {/* Text formatting */}
-        {EDITOR_CONFIG.features.bold && (
-          <Button
-            variant={isBold ? "default" : "ghost"}
-            size="sm"
-            onClick={formatBold}
-            title={texts.bold}
-          >
-            <Bold className="h-4 w-4" />
-          </Button>
-        )}
-        {EDITOR_CONFIG.features.italic && (
-          <Button
-            variant={isItalic ? "default" : "ghost"}
-            size="sm"
-            onClick={formatItalic}
-            title={texts.italic}
-          >
-            <Italic className="h-4 w-4" />
-          </Button>
-        )}
-        {EDITOR_CONFIG.features.underline && (
-          <Button
-            variant={isUnderline ? "default" : "ghost"}
-            size="sm"
-            onClick={formatUnderline}
-            title={texts.underline}
-          >
-            <Underline className="h-4 w-4" />
-          </Button>
-        )}
-        {EDITOR_CONFIG.features.clearFormatting && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={clearFormatting}
-            title={texts.clearFormatting}
-          >
-            <Eraser className="h-4 w-4" />
-          </Button>
-        )}
+          {/* Text formatting - Priority 1 */}
+          {EDITOR_CONFIG.features.bold && (
+            <Button
+              variant={isBold ? "default" : "ghost"}
+              size="sm"
+              onClick={formatBold}
+              title={texts.bold}
+              className="h-8 w-8 p-0 sm:h-auto sm:w-auto sm:p-2"
+            >
+              <Bold className="h-4 w-4" />
+            </Button>
+          )}
+          {EDITOR_CONFIG.features.italic && (
+            <Button
+              variant={isItalic ? "default" : "ghost"}
+              size="sm"
+              onClick={formatItalic}
+              title={texts.italic}
+              className="h-8 w-8 p-0 sm:h-auto sm:w-auto sm:p-2"
+            >
+              <Italic className="h-4 w-4" />
+            </Button>
+          )}
+          {EDITOR_CONFIG.features.underline && (
+            <Button
+              variant={isUnderline ? "default" : "ghost"}
+              size="sm"
+              onClick={formatUnderline}
+              title={texts.underline}
+              className="h-8 w-8 p-0 sm:h-auto sm:w-auto sm:p-2"
+            >
+              <Underline className="h-4 w-4" />
+            </Button>
+          )}
 
-        <Separator orientation="vertical" className="h-6 mx-1" />
+          <Separator orientation="vertical" className="h-6 mx-1 hidden sm:block" />
 
-        {/* Content formatting */}
-        {EDITOR_CONFIG.features.quote && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={formatQuote}
-            title={texts.quote}
-          >
-            <Quote className="h-4 w-4" />
-          </Button>
-        )}
+          {/* Content formatting - Priority 2 */}
+          {EDITOR_CONFIG.features.quote && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={formatQuote}
+              title={texts.quote}
+              className="h-8 w-8 p-0 sm:h-auto sm:w-auto sm:p-2"
+            >
+              <Quote className="h-4 w-4" />
+            </Button>
+          )}
 
-        {EDITOR_CONFIG.features.math && EDITOR_CONFIG.features.superscript && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={insertSuperscriptFormula}
-            title={texts.superscript}
-          >
-            <Superscript className="h-4 w-4" />
-          </Button>
-        )}
-        {EDITOR_CONFIG.features.math && EDITOR_CONFIG.features.subscript && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={insertSubscriptFormula}
-            title={texts.subscript}
-          >
-            <Subscript className="h-4 w-4" />
-          </Button>
-        )}
+          {/* Math tools - Priority 2 */}
+          {EDITOR_CONFIG.features.math && EDITOR_CONFIG.features.mathModal && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsMathModalOpen(true)}
+              title={texts.insertFormula}
+              className="h-8 w-8 p-0 sm:h-auto sm:w-auto sm:p-2"
+            >
+              <FunctionSquare className="h-4 w-4" />
+            </Button>
+          )}
 
-        {EDITOR_CONFIG.features.math && EDITOR_CONFIG.features.mathModal && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setIsMathModalOpen(true)}
-            title={texts.insertFormula}
-          >
-            <FunctionSquare className="h-4 w-4" />
-          </Button>
-        )}
+          {/* Secondary tools - Hidden on mobile, shown on larger screens */}
+          <div className="hidden md:flex items-center gap-1">
+            {EDITOR_CONFIG.features.clearFormatting && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={clearFormatting}
+                title={texts.clearFormatting}
+              >
+                <Eraser className="h-4 w-4" />
+              </Button>
+            )}
 
-        <Separator orientation="vertical" className="h-6 mx-1" />
+            {EDITOR_CONFIG.features.math && EDITOR_CONFIG.features.superscript && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={insertSuperscriptFormula}
+                title={texts.superscript}
+              >
+                <Superscript className="h-4 w-4" />
+              </Button>
+            )}
+            {EDITOR_CONFIG.features.math && EDITOR_CONFIG.features.subscript && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={insertSubscriptFormula}
+                title={texts.subscript}
+              >
+                <Subscript className="h-4 w-4" />
+              </Button>
+            )}
 
-        {/* Export */}
-        {EDITOR_CONFIG.features.markdownExport && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onExportMarkdown}
-            title={texts.exportMarkdown}
-          >
-            <Download className="h-4 w-4" />
-          </Button>
-        )}
-      </div>
+            <Separator orientation="vertical" className="h-6 mx-1" />
 
-      {/* Right section with Content Guard */}
-      <div className="flex items-center gap-2">
-        {EDITOR_CONFIG.features.contentGuard && (
-          <ContentGuardButton
-            status={contentGuardStatus}
-            onClick={onToggleAnalyzer}
-          />
-        )}
+            {/* Export */}
+            {EDITOR_CONFIG.features.markdownExport && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onExportMarkdown}
+                title={texts.exportMarkdown}
+              >
+                <Download className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
+        </div>
+
+        {/* Right section with Content Guard */}
+        <div className="flex items-center justify-between sm:justify-end gap-2">
+          {/* Export button for mobile - moved to right side */}
+          <div className="flex md:hidden">
+            {EDITOR_CONFIG.features.markdownExport && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onExportMarkdown}
+                title={texts.exportMarkdown}
+                className="h-8 w-8 p-0"
+              >
+                <Download className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
+          
+          {EDITOR_CONFIG.features.contentGuard && (
+            <ContentGuardButton
+              status={contentGuardStatus}
+              onClick={onToggleAnalyzer}
+            />
+          )}
+        </div>
       </div>
 
       <MathModal
@@ -676,7 +707,7 @@ export function MarkdownEditor({
                       "bg-blue-50/30": contentGuardStatus === "analyzing",
                     })}
                   >
-                    <ContentEditable className="ContentEditable__root min-h-[300px]" />
+                    <ContentEditable className="ContentEditable__root min-h-[200px] sm:min-h-[300px]" />
                   </div>
                 }
                 placeholder={
@@ -703,7 +734,7 @@ export function MarkdownEditor({
 
         <div
           className={cn(
-            "flex justify-between items-center p-4 border-t transition-all duration-300",
+            "flex flex-col sm:flex-row sm:justify-between sm:items-center p-2 sm:p-4 border-t transition-all duration-300 gap-2 sm:gap-4",
             {
               "bg-red-50 border-red-200": contentGuardStatus === "warning",
               "bg-blue-50 border-blue-200": contentGuardStatus === "analyzing",
@@ -711,10 +742,11 @@ export function MarkdownEditor({
             }
           )}
         >
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             {EDITOR_CONFIG.features.math && (
-              <span className="flex items-center gap-1">
-                {footerTexts.supportsFormulas}{" "}
+              <span className="flex items-center gap-1 text-xs sm:text-sm">
+                <span className="hidden sm:inline">{footerTexts.supportsFormulas}</span>
+                <span className="sm:hidden">Formulas:</span>{" "}
                 <a
                   href="https://katex.org/docs/support_table"
                   target="_blank"
@@ -727,8 +759,8 @@ export function MarkdownEditor({
             )}
           </div>
           {EDITOR_CONFIG.features.characterCount && (
-            <div className="flex items-center gap-4">
-              <span>
+            <div className="flex items-center gap-2 sm:gap-4">
+              <span className="text-xs sm:text-sm">
                 {stats.characterCount} {footerTexts.charactersCount}
               </span>
             </div>
